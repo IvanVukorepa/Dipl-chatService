@@ -1,0 +1,36 @@
+<html>
+    <body>
+        <h1>Azure Web PubSub Serverless Chat App</h1>
+        <div id="login"></div>
+        <p></p>
+        <input id="message" placeholder="Type to chat...">
+        <div id="messages"></div>
+        <script>
+            (async function () {
+
+                let messages = document.querySelector('#messages');
+                let userName = prompt("Enter user name")
+                let res = await fetch(`${window.location.origin}/api/negotiate?userId=${userName}`, {
+                    credentials: "include"
+                });
+                let url = await res.json();
+                // connect
+                console.log(url.url);
+
+                let ws = new WebSocket(url.url);
+                ws.onopen = () => console.log('connected');
+                ws.onmessage = event => {
+                    let m = document.createElement('p');
+                    m.innerText = event.data;
+                    messages.appendChild(m);
+                };
+                let message = document.querySelector('#message');
+                message.addEventListener('keypress', e => {
+                    if (e.charCode !== 13) return;
+                    ws.send(message.value);
+                    message.value = '';
+                });
+            })();
+        </script>
+    </body>
+</html>
