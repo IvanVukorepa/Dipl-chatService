@@ -16,9 +16,6 @@ variables:
   # Agent VM image name
   vmImageName: 'windows-2019'
 
-  # Working Directory
-  workingDirectory: 'workDir_chat'
-
 stages:
 - stage: Build
   displayName: Build stage
