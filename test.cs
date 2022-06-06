@@ -27,22 +27,27 @@ namespace Company.Function
             [WebPubSub(Hub = "simplechat")] IAsyncCollector<WebPubSubAction> actions)
         {
             Console.WriteLine("testevent");
-            String receivedData = request.Data.ToString();
-            String[] receivedDataArr = receivedData.Split('[', ']');
 
-            Console.WriteLine(receivedData);
-            if (receivedDataArr.Length < 3)
-            {
-                //return some error
-                return;
-            }
-            String group = receivedDataArr[1];
+            String datajson = data.ToString();
+            dynamic json2 = JObject.Parse(datajson);
             String userId = request.ConnectionContext.UserId;
-
-            String message = receivedDataArr[2];
-
+            String group = json2.group;
+            String message = json2.message;
+            String image = json2.image;
+            string uri = "";
             Console.WriteLine(group);
-            MessageData messageData = new MessageData(userId, message);
+
+            if (image != null && image != "" )
+            {
+                Console.WriteLine("image found");
+                byte[] byteArr = Convert.FromBase64String(json2.image.ToString());
+
+                //BinaryData bd = json2.image.ToObject<BinaryData>();
+                uri = await UserRepository.SaveImage(byteArr);
+                Console.WriteLine(uri);
+            }
+
+            MessageData messageData = new MessageData(userId, message, uri);
             string messageDatajson = JsonConvert.SerializeObject(messageData);
 
             //await actions.AddAsync(WebPubSubAction.CreateSendToAllAction(request.Data, dataType));

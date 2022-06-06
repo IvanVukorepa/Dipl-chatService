@@ -22,10 +22,13 @@ namespace chat
             log.LogInformation("Connecting...");
             
             Validate_JWT jwt = new Validate_JWT(req);
-            if(jwt.isValid)
+            if(jwt.isValid){
                 return connection;
-            else
+            }
+            else{
+                req.HttpContext.Response.StatusCode = 401;
                 return null;
+            }
         }
     }
 }

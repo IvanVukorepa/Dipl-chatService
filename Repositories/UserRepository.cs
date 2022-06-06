@@ -1,5 +1,6 @@
 ﻿using chat.Models;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
@@ -114,6 +115,23 @@ namespace chat.Repositories
 
             return userGroups;
 
+        }
+
+        public static async Task<string> SaveImage(byte[] byeArray)
+        {
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+            CloudBlobClient blobClient =  storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer blobContainer = blobClient.GetContainerReference("imagecontainer");
+
+            string guid = Guid.NewGuid().ToString();
+
+            CloudBlockBlob blob = blobContainer.GetBlockBlobReference(guid);
+
+            await blob.UploadFromByteArrayAsync(byeArray, 0, byeArray.Length);
+            blob.Properties.ContentType = "image/jpg";
+            await blob.SetPropertiesAsync();
+
+            return blob.Uri.AbsoluteUri;
         }
 
     }
