@@ -32,8 +32,8 @@ namespace Company.Function
             dynamic json2 = JObject.Parse(datajson);
             String userId = request.ConnectionContext.UserId;
             String group = json2.group;
-            String message = json2.message;
-            String image = json2.image;
+            String message = json2.message == null ? "" : json2.message;
+            String image = json2.image == null ? "" : json2.image;
             string uri = "";
             Console.WriteLine(group);
 
@@ -42,7 +42,6 @@ namespace Company.Function
                 Console.WriteLine("image found");
                 byte[] byteArr = Convert.FromBase64String(json2.image.ToString());
 
-                //BinaryData bd = json2.image.ToObject<BinaryData>();
                 uri = await UserRepository.SaveImage(byteArr);
                 Console.WriteLine(uri);
             }
@@ -50,7 +49,6 @@ namespace Company.Function
             MessageData messageData = new MessageData(userId, message, uri);
             string messageDatajson = JsonConvert.SerializeObject(messageData);
 
-            //await actions.AddAsync(WebPubSubAction.CreateSendToAllAction(request.Data, dataType));
             await actions.AddAsync(WebPubSubAction.CreateSendToGroupAction(group, messageDatajson, WebPubSubDataType.Json));
 
             WebPubSubServiceClient client =
