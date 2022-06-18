@@ -12,7 +12,8 @@ namespace chat.Repositories
 {
     public class UserRepository
     {
-        public static void AddGroupToUser(string username, string group, string chatName){
+        public static void AddGroupToUser(string username, string group, string chatName)
+        {
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
@@ -23,6 +24,25 @@ namespace chat.Repositories
             Console.WriteLine(userGroup.Username);
             Console.WriteLine(userGroup.Group);
             table.ExecuteAsync(TableOperation.InsertOrMerge(userGroup)).Wait();
+        }
+
+        public static void RemoveGroupFromUser(string username, string group)
+        {
+            try{
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+            CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
+
+            CloudTable table = tableClient.GetTableReference("ChatTable");
+            table.CreateIfNotExistsAsync().Wait();
+
+            var entity = new UserGroup{PartitionKey = username, RowKey = group, ETag = "*"};
+
+            Console.WriteLine(username + " " + group);
+            table.ExecuteAsync(TableOperation.Delete(entity)).Wait();
+            } catch (Exception ex) {
+                Console.WriteLine("error occured " + ex.ToString());
+                throw;
+            }
         }
 
         public static async Task<List<UserGroup>> GetAllUserGroupsForUser(string username)
