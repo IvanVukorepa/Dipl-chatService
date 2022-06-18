@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.WebPubSub;
 using chat.Models;
 using System.Collections.Generic;
 using chat.Repositories;
+using chat;
 
 namespace Company.Function
 {
@@ -22,6 +23,13 @@ namespace Company.Function
             ILogger log,
             [WebPubSub(Hub = "simplechat")] IAsyncCollector<WebPubSubAction> actions)
         {
+
+            Validate_JWT jwt = new Validate_JWT(req);
+
+            if (!jwt.isValid)
+            {
+                return new StatusCodeResult(401);
+            }
 
             List<UserGroup> userGroups = new List<UserGroup>();
             userGroups = await UserRepository.GetAllUserGroupsForUser(username: req.Query["username"]);

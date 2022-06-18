@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using chat.Models;
 using Azure.Messaging.WebPubSub;
 using chat.Repositories;
+using chat;
 
 namespace Company.Function
 {
@@ -20,6 +21,14 @@ namespace Company.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+
+            Validate_JWT jwt = new Validate_JWT(req);
+
+            if (!jwt.isValid)
+            {
+                return new StatusCodeResult(401);
+            }
+
             var content = await new StreamReader(req.Body).ReadToEndAsync();
             Console.WriteLine("test" + content);
             Group group = JsonConvert.DeserializeObject<Group>(content);

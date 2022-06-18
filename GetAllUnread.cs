@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using chat.Models;
 using chat.Repositories;
+using chat;
 
 namespace Company.Function
 {
@@ -20,6 +21,14 @@ namespace Company.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
+
+            Validate_JWT jwt = new Validate_JWT(req);
+
+            if (!jwt.isValid)
+            {
+                return new StatusCodeResult(401);
+            }
+
             List<UserGroup> userGroups = new List<UserGroup>();
             userGroups = await UserRepository.GetAllMessages(username: req.Query["username"]);
             return new OkObjectResult(userGroups);
