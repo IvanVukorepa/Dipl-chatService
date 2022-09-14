@@ -20,7 +20,7 @@ namespace Company.Function
 {
     public static class test
     {
-        [FunctionName("test")]
+        [FunctionName("message")]
         public static async Task Run(
             [WebPubSubTrigger("simplechat", WebPubSubEventType.User, "message")] UserEventRequest request,
             BinaryData data, WebPubSubDataType dataType,
